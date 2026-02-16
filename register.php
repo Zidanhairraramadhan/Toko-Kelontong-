@@ -2,49 +2,46 @@
 session_start();
 require_once 'config/database.php';
 
-// Check if already logged in
+// If already logged in
 if (isset($_SESSION['user_id'])) {
-    if ($_SESSION['role'] == 'admin') {
-        header("Location: admin/index.php");
-    } else {
-        header("Location: produk.php");
-    }
+    header("Location: index.php");
     exit;
 }
 
 $error = '';
+$success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
+    $username = trim($_POST['username']);
     $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+    $full_name = trim($_POST['full_name']);
 
-    try {
-        $stmt = $conn->prepare("SELECT * FROM users WHERE username = :username");
-        $stmt->bindValue(':username', $username);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Verify password
-        // Note: For this demo, if the hash check fails, we might want to temporarily allow plain text for easier testing if the DB wasn't set up with hashes correctly.
-        // But we should stick to password_verify.
-        if ($user && password_verify($password, $user['password'])) {
-            // Login Success
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['full_name'] = $user['full_name'];
-
-            if ($user['role'] == 'admin') {
-                header("Location: admin/index.php");
-            } else {
-                header("Location: produk.php");
-            }
-            exit;
+    if ($password !== $confirm_password) {
+        $error = 'Konfirmasi password tidak cocok!';
+    } else {
+        // Check if username exists
+        $stmt = $conn->prepare("SELECT id FROM users WHERE username = :username");
+        $stmt->execute([':username' => $username]);
+        
+        if ($stmt->rowCount() > 0) {
+            $error = 'Username sudah digunakan!';
         } else {
-            $error = 'Username atau password salah!';
+            // Insert
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("INSERT INTO users (username, password, full_name, role) VALUES (:username, :password, :full_name, 'user')");
+            
+            try {
+                $stmt->execute([
+                    ':username' => $username,
+                    ':password' => $hashed_password,
+                    ':full_name' => $full_name
+                ]);
+                $success = 'Pendaftaran berhasil! Silakan login.';
+            } catch (PDOException $e) {
+                $error = 'Terjadi kesalahan: ' . $e->getMessage();
+            }
         }
-    } catch (PDOException $e) {
-        $error = "Error: " . $e->getMessage();
     }
 }
 ?>
@@ -54,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Toko Kelontong</title>
+    <title>Daftar Akun - Toko Kelontong</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
@@ -118,6 +115,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-bottom: 1rem;
             text-align: center;
         }
+        .success-msg {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
         .back-link {
             text-align: center;
             margin-top: 1rem;
@@ -132,37 +137,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="login-container">
     <div class="login-header">
-        <h2>Login</h2>
-        <p>Silakan masuk ke akun Anda</p>
+        <h2>Daftar Akun Baru</h2>
+        <p>Bergabunglah dengan Toko Kelontong</p>
     </div>
 
     <?php if($error): ?>
         <div class="error-msg"><?php echo $error; ?></div>
     <?php endif; ?>
+    
+    <?php if($success): ?>
+        <div class="success-msg">
+            <?php echo $success; ?>
+            <br>
+            <a href="login.php" style="font-weight: bold; color: #1b5e20;">Login sekarang</a>
+        </div>
+    <?php else: ?>
 
     <form method="POST" action="">
         <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
+            <label>Nama Lengkap</label>
+            <input type="text" name="full_name" required>
         </div>
         <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <label>Username</label>
+            <input type="text" name="username" required>
         </div>
-        <button type="submit" class="btn-login">Masuk</button>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label>Konfirmasi Password</label>
+            <input type="password" name="confirm_password" required>
+        </div>
+        <button type="submit" class="btn-login">Daftar</button>
     </form>
+    <?php endif; ?>
 
     <div class="back-link">
-        <p>Belum punya akun? <a href="register.php">Daftar disini</a></p>
-        <br>
+        Sudah punya akun? <a href="login.php">Login disini</a>
+        <br><br>
         <a href="index.php">Kembali ke Beranda</a>
-    </div>
-    
-    <!-- Info for Demo -->
-    <div style="margin-top: 20px; font-size: 0.8rem; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 10px;">
-        <p>Demo Akun:</p>
-        <p>Admin: admin / admin</p>
-        <p>User: user / user</p>
     </div>
 </div>
 

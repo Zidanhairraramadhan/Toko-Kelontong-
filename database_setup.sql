@@ -67,5 +67,4 @@ INSERT IGNORE INTO products (id, name, description, price, stock, image, categor
 -- Insert Dummy Users
 DELETE FROM users WHERE username IN ('admin', 'user');
 INSERT INTO users (username, password, full_name, role) VALUES
-('admin', '$2y$10$y3YTV62aamY8McsUlUSgYO0C.f9V0hniwa3lqLxZIp0fhkeSFFLdu', 'Administrator', 'admin'),
-('user', '$2y$10$AYqHqLcnmMnH8h7/6Feq5.4bEcfLOZWwKj07mAKyWHp0B2VAmISWO', 'Pelanggan Setia', 'user');
+('admin', '$2y$10$y3YTV62aamY8McsUlUSgYO0C.f9V0hniwa3lqLxZIp0fhkeSFFLdu', 'Administrator', 'admin');
