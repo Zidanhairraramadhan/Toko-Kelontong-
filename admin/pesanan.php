@@ -19,7 +19,7 @@ if (isset($_POST['update_status'])) {
 
 // Fetch Orders
 $stmt = $conn->query("
-    SELECT o.id, o.total_price, o.status, o.created_at, u.full_name 
+    SELECT o.id, o.total_price, o.status, o.created_at, o.payment_method, u.full_name 
     FROM orders o 
     JOIN users u ON o.user_id = u.id 
     ORDER BY o.created_at DESC
@@ -70,6 +70,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <th>ID</th>
                     <th>Pelanggan</th>
                     <th>Total Harga</th>
+                    <th>Metode Bayar</th>
                     <th>Tanggal</th>
                     <th>Status</th>
                     <th>Aksi</th>
@@ -81,6 +82,9 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td>#<?php echo $order['id']; ?></td>
                     <td><?php echo htmlspecialchars($order['full_name']); ?></td>
                     <td>Rp <?php echo number_format($order['total_price'], 0, ',', '.'); ?></td>
+                    <td style="text-transform: uppercase; font-weight: bold; color: #555;">
+                        <?php echo str_replace('_', ' ', $order['payment_method']); ?>
+                    </td>
                     <td><?php echo date('d/m/Y H:i', strtotime($order['created_at'])); ?></td>
                     <td>
                         <form method="POST" action="">

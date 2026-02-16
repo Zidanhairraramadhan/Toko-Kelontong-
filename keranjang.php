@@ -90,8 +90,8 @@ if (!empty($_SESSION['cart'])) {
         <div style="text-align: right;">
             <a href="produk.php" style="margin-right: 10px; color: #666;">Lanjut Belanja</a>
             <?php if(isset($_SESSION['user_id'])): ?>
-                <form action="checkout.php" method="POST" style="display: inline;">
-                    <button type="submit" class="btn-cta" style="border: none; cursor: pointer;">Checkout Sekarang</button>
+                <form action="pembayaran.php" method="POST" style="display: inline;">
+                    <button type="submit" class="btn-cta" style="border: none; cursor: pointer;">Lanjut ke Pembayaran</button>
                 </form>
             <?php else: ?>
                 <a href="login.php" class="btn-cta">Login untuk Checkout</a>

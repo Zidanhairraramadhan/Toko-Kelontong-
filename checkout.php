@@ -47,10 +47,13 @@ try {
     }
 
     // 2. Create Order
-    $stmt_order = $conn->prepare("INSERT INTO orders (user_id, total_price, status) VALUES (:user_id, :total_price, 'pending')");
+    $payment_method = isset($_POST['payment_method']) ? $_POST['payment_method'] : 'cod';
+    
+    $stmt_order = $conn->prepare("INSERT INTO orders (user_id, total_price, status, payment_method) VALUES (:user_id, :total_price, 'pending', :payment_method)");
     $stmt_order->execute([
         ':user_id' => $user_id,
-        ':total_price' => $total_price
+        ':total_price' => $total_price,
+        ':payment_method' => $payment_method
     ]);
     $order_id = $conn->lastInsertId();
 
@@ -58,7 +61,6 @@ try {
     $stmt_item = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (:order_id, :product_id, :qty, :price)");
 
     foreach ($order_items as $item) {
-        // Insert Item
         $stmt_item->execute([
             ':order_id' => $order_id,
             ':product_id' => $item['product_id'],
@@ -66,7 +68,6 @@ try {
             ':price' => $item['price']
         ]);
 
-        // Reduce Stock
         $stmt_update_stock->execute([
             ':qty' => $item['qty'],
             ':id' => $item['product_id']
@@ -79,8 +80,15 @@ try {
     // Clear Cart
     unset($_SESSION['cart']);
 
-    // Show Success
-    echo "<script>alert('Pesanan berhasil dibuat! Terima kasih.'); window.location.href='index.php';</script>";
+    // Show Success with Payment Info
+    $msg = "Pesanan berhasil! ";
+    if ($payment_method == 'cod') {
+        $msg .= "Silakan siapkan uang tunai saat kurir datang.";
+    } else {
+        $msg .= "Silakan lakukan transfer sesuai rekening yang dipilih.";
+    }
+    
+    echo "<script>alert('$msg'); window.location.href='index.php';</script>";
 
 } catch (Exception $e) {
     // Rollback if error

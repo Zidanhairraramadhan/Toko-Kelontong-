@@ -47,6 +47,7 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="order-header">
         <h2>Detail Pesanan #<?php echo $order['id']; ?></h2>
         <p><strong>Pelanggan:</strong> <?php echo htmlspecialchars($order['full_name']); ?> (<?php echo htmlspecialchars($order['username']); ?>)</p>
+        <p><strong>Metode Bayar:</strong> <?php echo strtoupper(str_replace('_', ' ', $order['payment_method'])); ?></p>
         <p><strong>Tanggal:</strong> <?php echo date('d F Y H:i', strtotime($order['created_at'])); ?></p>
         <p><strong>Status:</strong> <?php echo ucfirst($order['status']); ?></p>
     </div>
