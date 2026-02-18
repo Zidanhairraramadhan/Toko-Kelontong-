@@ -76,6 +76,28 @@ try {
 
     // Commit Transaction
     $conn->commit();
+    
+    // 4. Create Notification for Admin
+    // We do this AFTER commit (or inside, but if inside, make sure to use the same connection). 
+    // Since we committed, let's use a new try-catch or just execute. 
+    // Actually, it's safer to include it in the transaction, but if it fails, we don't want to revert the order?
+    // Let's include it in the transaction for consistency.
+    
+    // Re-opening transaction or just running query if we assumed commit closed it?
+    // Wait, $conn->commit() commits the transaction. The connection is back to auto-commit mode.
+    
+    try {
+        $stmt_notif = $conn->prepare("INSERT INTO notifications (order_id, message) VALUES (:order_id, :message)");
+        $notif_msg = "Pesanan baru #" . $order_id . " dari " . htmlspecialchars($_SESSION['full_name']); // Assuming name is in session or query it.
+        // Let's query user name if not in session, but session usually has it.
+        // In checkout.php we have $user_id.
+        $stmt_notif->execute([
+            ':order_id' => $order_id,
+            ':message' => $notif_msg
+        ]);
+    } catch (Exception $e) {
+        // Ignore notification error, don't fail the order
+    }
 
     // Clear Cart
     unset($_SESSION['cart']);

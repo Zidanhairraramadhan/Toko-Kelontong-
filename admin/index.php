@@ -66,6 +66,30 @@ try {
         .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
         .status-pending { background: #fff3e0; color: #ef6c00; }
         .status-completed { background: #e8f5e9; color: #2e7d32; }
+
+        /* Notification Styles */
+        .notification-wrapper { position: relative; cursor: pointer; margin-right: 20px; }
+        .notification-bell { font-size: 1.5rem; color: #555; transition: 0.3s; }
+        .notification-bell:hover { color: #2e7d32; }
+        .notification-badge { 
+            position: absolute; top: -5px; right: -5px; 
+            background: #e74c3c; color: white; 
+            font-size: 0.7rem; padding: 2px 6px; 
+            border-radius: 50%; display: none; 
+        }
+        .notification-dropdown {
+            position: absolute; right: 0; top: 30px; 
+            width: 300px; background: white; 
+            border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+            display: none; z-index: 1000; overflow: hidden;
+        }
+        .notification-dropdown.active { display: block; }
+        .notification-header { padding: 10px; background: #f4f4f4; font-weight: bold; border-bottom: 1px solid #ddd; }
+        .notification-list { max-height: 300px; overflow-y: auto; }
+        .notification-item { padding: 10px; border-bottom: 1px solid #eee; transition: 0.3s; display: block; color: #333; text-decoration: none; }
+        .notification-item:hover { background: #f9f9f9; }
+        .notification-item.unread { background: #e8f5e9; }
+        .notification-empty { padding: 20px; text-align: center; color: #777; }
     </style>
 </head>
 <body>
@@ -83,7 +107,20 @@ try {
     <div class="content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3>Selamat Datang, <?php echo htmlspecialchars($_SESSION['full_name']); ?>!</h3>
-            <a href="../index.php" target="_blank" class="btn-produk"><i class="fas fa-external-link-alt"></i> Lihat Website</a>
+            
+            <div style="display: flex; align-items: center;">
+                <div class="notification-wrapper" onclick="toggleNotifications()">
+                    <i class="fas fa-bell notification-bell"></i>
+                    <span class="notification-badge" id="notif-badge">0</span>
+                    <div class="notification-dropdown" id="notif-dropdown">
+                        <div class="notification-header">Notifikasi</div>
+                        <div class="notification-list" id="notif-list">
+                            <!-- Items loaded via JS -->
+                        </div>
+                    </div>
+                </div>
+                <a href="../index.php" target="_blank" class="btn-produk"><i class="fas fa-external-link-alt"></i> Lihat Website</a>
+            </div>
         </div>
 
         <div class="stats-grid">
@@ -148,6 +185,72 @@ try {
         </div>
     </div>
 </div>
+
+</div>
+
+<script>
+function toggleNotifications() {
+    const dropdown = document.getElementById('notif-dropdown');
+    dropdown.classList.toggle('active');
+    
+    if (dropdown.classList.contains('active')) {
+        markAsRead();
+    }
+}
+
+function fetchNotifications() {
+    fetch('get_notifications.php')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('notif-badge');
+            const list = document.getElementById('notif-list');
+            
+            if (data.unread_count > 0) {
+                badge.style.display = 'block';
+                badge.innerText = data.unread_count;
+            } else {
+                badge.style.display = 'none';
+            }
+            
+            list.innerHTML = '';
+            if (data.notifications && data.notifications.length > 0) {
+                data.notifications.forEach(notif => {
+                    const item = document.createElement('a');
+                    item.href = 'detail_pesanan.php?id=' + notif.order_id;
+                    item.className = 'notification-item' + (notif.is_read == 0 ? ' unread' : '');
+                    item.innerHTML = `
+                        <div>${notif.message}</div>
+                        <small style="color: #888;">${new Date(notif.created_at).toLocaleString()}</small>
+                    `;
+                    list.appendChild(item);
+                });
+            } else {
+                list.innerHTML = '<div class="notification-empty">Tidak ada notifikasi</div>';
+            }
+        })
+        .catch(err => console.error('Error fetching notifications:', err));
+}
+
+function markAsRead() {
+    fetch('mark_read.php', { method: 'POST' })
+        .then(response => {
+            fetchNotifications(); // Refresh to clear badge/update styles
+        });
+}
+
+// Poll every 5 seconds
+setInterval(fetchNotifications, 5000);
+fetchNotifications(); // Initial load
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const wrapper = document.querySelector('.notification-wrapper');
+    const dropdown = document.getElementById('notif-dropdown');
+    if (dropdown && !wrapper.contains(event.target)) {
+        dropdown.classList.remove('active');
+    }
+});
+</script>
 
 </body>
 </html>
