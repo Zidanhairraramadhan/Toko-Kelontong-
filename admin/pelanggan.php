@@ -16,17 +16,6 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Kelola Pelanggan</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .admin-wrapper { display: flex; min-height: 100vh; }
-        .sidebar { width: 250px; background: #1b5e20; color: white; padding: 20px; }
-        .sidebar a { color: #dcedc8; display: block; padding: 10px; margin-bottom: 5px; border-radius: 5px; }
-        .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.1); color: white; }
-        .content { flex: 1; padding: 20px; background: #f4f4f4; }
-        
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background: #2e7d32; color: white; }
-    </style>
 </head>
 <body>
 
@@ -43,26 +32,28 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="content">
         <h2>Daftar Pelanggan</h2>
         
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nama Lengkap</th>
-                    <th>Username</th>
-                    <th>Bergabung Sejak</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach($users as $user): ?>
-                <tr>
-                    <td><?php echo $user['id']; ?></td>
-                    <td><?php echo htmlspecialchars($user['full_name']); ?></td>
-                    <td><?php echo htmlspecialchars($user['username']); ?></td>
-                    <td><?php echo date('d M Y', strtotime($user['created_at'])); ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <div class="admin-card">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama Lengkap</th>
+                        <th>Username</th>
+                        <th>Bergabung Sejak</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($users as $user): ?>
+                    <tr>
+                        <td><?php echo $user['id']; ?></td>
+                        <td><?php echo htmlspecialchars($user['full_name']); ?></td>
+                        <td><?php echo htmlspecialchars($user['username']); ?></td>
+                        <td><?php echo date('d M Y', strtotime($user['created_at'])); ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

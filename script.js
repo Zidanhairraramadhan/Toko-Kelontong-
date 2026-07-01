@@ -46,9 +46,11 @@ if (slides.length > 0) {
 const addToCartButtons = document.querySelectorAll('.btn-add');
 
 addToCartButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-        const productCard = e.target.closest('.product-card');
-        const productName = productCard.querySelector('.product-title').innerText;
-        alert(`${productName} telah ditambahkan ke keranjang!`);
-    });
+    if (button.type !== 'submit') {
+        button.addEventListener('click', (e) => {
+            const productCard = e.target.closest('.product-card');
+            const productName = productCard.querySelector('.product-title').innerText;
+            alert(`${productName} telah ditambahkan ke keranjang!`);
+        });
+    }
 });

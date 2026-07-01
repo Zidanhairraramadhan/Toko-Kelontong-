@@ -45,52 +45,6 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../style.css">
-    <style>
-        .admin-wrapper { display: flex; min-height: 100vh; }
-        .sidebar { width: 250px; background: #1b5e20; color: white; padding: 20px; }
-        .sidebar a { color: #dcedc8; display: block; padding: 10px; margin-bottom: 5px; border-radius: 5px; transition: 0.3s; }
-        .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.1); color: white; }
-        .content { flex: 1; padding: 20px; background: #f4f4f4; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 2rem; }
-        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 20px; }
-        .stat-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        
-        .bg-green { background-color: #e8f5e9; color: #2e7d32; }
-        .bg-orange { background-color: #fff3e0; color: #ff9800; }
-        .bg-blue { background-color: #e3f2fd; color: #2196f3; }
-
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #fafafa; font-weight: 600; color: #555; }
-        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-        .status-pending { background: #fff3e0; color: #ef6c00; }
-        .status-completed { background: #e8f5e9; color: #2e7d32; }
-
-        /* Notification Styles */
-        .notification-wrapper { position: relative; cursor: pointer; margin-right: 20px; }
-        .notification-bell { font-size: 1.5rem; color: #555; transition: 0.3s; }
-        .notification-bell:hover { color: #2e7d32; }
-        .notification-badge { 
-            position: absolute; top: -5px; right: -5px; 
-            background: #e74c3c; color: white; 
-            font-size: 0.7rem; padding: 2px 6px; 
-            border-radius: 50%; display: none; 
-        }
-        .notification-dropdown {
-            position: absolute; right: 0; top: 30px; 
-            width: 300px; background: white; 
-            border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-            display: none; z-index: 1000; overflow: hidden;
-        }
-        .notification-dropdown.active { display: block; }
-        .notification-header { padding: 10px; background: #f4f4f4; font-weight: bold; border-bottom: 1px solid #ddd; }
-        .notification-list { max-height: 300px; overflow-y: auto; }
-        .notification-item { padding: 10px; border-bottom: 1px solid #eee; transition: 0.3s; display: block; color: #333; text-decoration: none; }
-        .notification-item:hover { background: #f9f9f9; }
-        .notification-item.unread { background: #e8f5e9; }
-        .notification-empty { padding: 20px; text-align: center; color: #777; }
-    </style>
 </head>
 <body>
 
@@ -147,10 +101,10 @@ try {
             </div>
         </div>
 
-        <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div class="admin-card">
             <h3 style="margin-bottom: 1rem;">Pesanan Terakhir</h3>
             <?php if(count($recent_orders) > 0): ?>
-            <table>
+            <table class="admin-table">
                 <thead>
                     <tr>
                         <th>ID Pesanan</th>

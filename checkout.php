@@ -47,15 +47,55 @@ try {
     }
 
     // 2. Create Order
-    $payment_method = isset($_POST['payment_method']) ? $_POST['payment_method'] : 'cod';
+    $payment_method   = isset($_POST['payment_method']) ? $_POST['payment_method'] : 'cod';
+    $shipping_type    = isset($_POST['shipping_type']) ? $_POST['shipping_type'] : 'pickup';
+    $shipping_fee     = ($shipping_type == 'delivery') ? 10000 : 0;
+    $shipping_address = isset($_POST['shipping_address']) && $shipping_type == 'delivery' ? trim($_POST['shipping_address']) : null;
     
-    $stmt_order = $conn->prepare("INSERT INTO orders (user_id, total_price, status, payment_method) VALUES (:user_id, :total_price, 'pending', :payment_method)");
+    $voucher_code     = isset($_POST['voucher_code']) && !empty($_POST['voucher_code']) ? trim($_POST['voucher_code']) : null;
+    $discount_amount  = isset($_POST['discount_amount']) ? floatval($_POST['discount_amount']) : 0;
+    
+    // Calculate final payment total
+    $final_payment = max(0, $total_price + $shipping_fee - $discount_amount);
+    
+    // Points calculation: 100 points for every Rp 10.000 spent
+    $points_earned = floor($final_payment / 10000) * 100;
+    
+    // Add bonus points if voucher type is cashback_points
+    if ($voucher_code) {
+        $stmt_v = $conn->prepare("SELECT type, value FROM vouchers WHERE code = :code AND active = 1 LIMIT 1");
+        $stmt_v->execute([':code' => $voucher_code]);
+        $v_data = $stmt_v->fetch(PDO::FETCH_ASSOC);
+        if ($v_data && $v_data['type'] == 'cashback_points') {
+            $points_earned += intval($v_data['value']);
+        }
+    }
+    
+    $stmt_order = $conn->prepare("
+        INSERT INTO orders 
+        (user_id, total_price, payment_method, shipping_type, shipping_fee, shipping_address, voucher_code, discount_amount, points_earned, status) 
+        VALUES 
+        (:user_id, :total_price, :payment_method, :shipping_type, :shipping_fee, :shipping_address, :voucher_code, :discount_amount, :points_earned, 'pending')
+    ");
     $stmt_order->execute([
-        ':user_id' => $user_id,
-        ':total_price' => $total_price,
-        ':payment_method' => $payment_method
+        ':user_id'          => $user_id,
+        ':total_price'      => $final_payment,
+        ':payment_method'   => $payment_method,
+        ':shipping_type'    => $shipping_type,
+        ':shipping_fee'     => $shipping_fee,
+        ':shipping_address' => $shipping_address,
+        ':voucher_code'     => $voucher_code,
+        ':discount_amount'  => $discount_amount,
+        ':points_earned'    => $points_earned
     ]);
     $order_id = $conn->lastInsertId();
+
+    // Update User's Membership Points
+    $stmt_user_points = $conn->prepare("UPDATE users SET points = points + :points WHERE id = :id");
+    $stmt_user_points->execute([
+        ':points' => $points_earned,
+        ':id'     => $user_id
+    ]);
 
     // 3. Insert Order Items & Deduct Stock
     $stmt_item = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (:order_id, :product_id, :qty, :price)");

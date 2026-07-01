@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     full_name VARCHAR(100),
     role ENUM('admin', 'user') DEFAULT 'user',
+    points INT DEFAULT 0,
+    is_member BOOLEAN DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -38,6 +40,13 @@ CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     total_price DECIMAL(10, 2) NOT NULL,
+    payment_method VARCHAR(50) DEFAULT 'cod',
+    shipping_type ENUM('pickup', 'delivery') DEFAULT 'pickup',
+    shipping_fee DECIMAL(10, 2) DEFAULT 0,
+    shipping_address TEXT DEFAULT NULL,
+    voucher_code VARCHAR(50) DEFAULT NULL,
+    discount_amount DECIMAL(10, 2) DEFAULT 0,
+    points_earned INT DEFAULT 0,
     status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
@@ -54,6 +63,16 @@ CREATE TABLE IF NOT EXISTS order_items (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
+-- Table: Notifications
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    message TEXT,
+    is_read BOOLEAN DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
 -- Insert Dummy Data for Products (If not exists)
 -- Note: Re-inserting with stock values if table is empty or just for reference
 INSERT IGNORE INTO products (id, name, description, price, stock, image, category, is_popular) VALUES
@@ -67,4 +86,5 @@ INSERT IGNORE INTO products (id, name, description, price, stock, image, categor
 -- Insert Dummy Users
 DELETE FROM users WHERE username IN ('admin', 'user');
 INSERT INTO users (username, password, full_name, role) VALUES
-('admin', '$2y$10$y3YTV62aamY8McsUlUSgYO0C.f9V0hniwa3lqLxZIp0fhkeSFFLdu', 'Administrator', 'admin');
+('admin', '$2y$10$y3YTV62aamY8McsUlUSgYO0C.f9V0hniwa3lqLxZIp0fhkeSFFLdu', 'Administrator', 'admin'),
+('user', '$2y$10$nBgbH9W0mpTB0o6J0Lb2M.21W2.DJLMJKszE.bdvQkk6RzI9nB4wG', 'Pelanggan Demo', 'user');

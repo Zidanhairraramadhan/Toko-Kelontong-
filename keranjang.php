@@ -71,21 +71,21 @@ if (!empty($_SESSION['cart'])) {
     <?php if (empty($cart_items)): ?>
         <p style="text-align: center;">Keranjang Anda masih kosong. <a href="produk.php">Belanja sekarang</a>.</p>
     <?php else: ?>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+        <table class="premium-table">
             <thead>
-                <tr style="border-bottom: 2px solid #ddd;">
-                    <th style="text-align: left; padding: 10px;">Produk</th>
-                    <th style="text-align: center; padding: 10px;">Jumlah</th>
-                    <th style="text-align: right; padding: 10px;">Harga</th>
-                    <th style="text-align: right; padding: 10px;">Subtotal</th>
-                    <th style="text-align: center; padding: 10px;">Hapus</th>
+                <tr>
+                    <th style="text-align: left;">Produk</th>
+                    <th style="text-align: center;">Jumlah</th>
+                    <th style="text-align: right;">Harga</th>
+                    <th style="text-align: right;">Subtotal</th>
+                    <th style="text-align: center;">Hapus</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($cart_items as $item): ?>
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px;">
-                        <span style="font-weight: bold;"><?php echo htmlspecialchars($item['name']); ?></span>
+                <tr>
+                    <td>
+                        <span style="font-weight: 600; color: var(--text-color);"><?php echo htmlspecialchars($item['name']); ?></span>
                     </td>
                     <td style="text-align: center; padding: 10px;">
                         <!-- Quantity Controls -->
@@ -95,7 +95,7 @@ if (!empty($_SESSION['cart'])) {
                             <input type="hidden" name="product_id" value="<?php echo $item['id']; ?>">
 
                             <!-- Tombol Kurang -->
-                            <button type="submit" name="qty" value="<?php echo $item['qty'] - 1; ?>"
+                            <button type="button" onclick="updateCartQty(this, -1, <?php echo $item['stock']; ?>)"
                                     style="width:30px; height:30px; font-size:1.1rem; cursor:pointer;
                                            border:1px solid #ccc; border-radius:4px; background:#f5f5f5;
                                            line-height:1;"
@@ -109,7 +109,7 @@ if (!empty($_SESSION['cart'])) {
                                    onchange="this.form.submit()">
 
                             <!-- Tombol Tambah -->
-                            <button type="submit" name="qty" value="<?php echo $item['qty'] + 1; ?>"
+                            <button type="button" onclick="updateCartQty(this, 1, <?php echo $item['stock']; ?>)"
                                     <?php if ($item['qty'] >= $item['stock']) echo 'disabled title="Stok habis"'; ?>
                                     style="width:30px; height:30px; font-size:1.1rem; cursor:pointer;
                                            border:1px solid #ccc; border-radius:4px; background:#f5f5f5;
@@ -120,15 +120,15 @@ if (!empty($_SESSION['cart'])) {
                             Stok: <?php echo $item['stock']; ?>
                         </div>
                     </td>
-                    <td style="text-align: right; padding: 10px;">
+                    <td style="text-align: right;">
                         Rp <?php echo number_format($item['price'], 0, ',', '.'); ?>
                     </td>
-                    <td style="text-align: right; padding: 10px; font-weight: bold;">
+                    <td style="text-align: right; font-weight: 600; color: var(--accent-hover);">
                         Rp <?php echo number_format($item['subtotal'], 0, ',', '.'); ?>
                     </td>
-                    <td style="text-align: center; padding: 10px;">
+                    <td style="text-align: center;">
                         <a href="keranjang.php?action=remove&id=<?php echo $item['id']; ?>"
-                           style="color: red;"
+                           style="color: #ef4444; font-size: 1.15rem; transition: var(--transition-smooth);"
                            onclick="return confirm('Hapus produk ini dari keranjang?')">
                             <i class="fas fa-trash"></i>
                         </a>
@@ -149,10 +149,22 @@ if (!empty($_SESSION['cart'])) {
                     <button type="submit" class="btn-cta" style="border: none; cursor: pointer;">Lanjut ke Pembayaran</button>
                 </form>
             <?php else: ?>
-                <a href="login.php" class="btn-cta">Login untuk Checkout</a>
+                <a href="login.php?redirect=keranjang.php" class="btn-cta">Login untuk Checkout</a>
             <?php endif; ?>
         </div>
     <?php endif; ?>
 </section>
+
+<script>
+function updateCartQty(btn, delta, maxQty) {
+    var form = btn.closest('form');
+    var input = form.querySelector('input[name="qty"]');
+    var val = parseInt(input.value) + delta;
+    if (val < 0) val = 0;
+    if (val > maxQty) val = maxQty;
+    input.value = val;
+    form.submit();
+}
+</script>
 
 <?php require_once 'includes/footer.php'; ?>

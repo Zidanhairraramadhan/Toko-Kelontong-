@@ -53,10 +53,18 @@ try {
             <!-- Placeholder image logic for demo -->
             <div class="product-image" style="background-image: url('assets/images/<?php echo $product['image']; ?>'), url('https://via.placeholder.com/300x200?text=Produk');"></div>
             <div class="product-info">
+                <span class="category-badge"><?php echo htmlspecialchars($product['category'] ?? 'Sembako'); ?></span>
                 <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
                 <p class="product-description"><?php echo htmlspecialchars(substr($product['description'], 0, 50)) . '...'; ?></p>
                 <p class="product-price">Rp <?php echo number_format($product['price'], 0, ',', '.'); ?></p>
-                <button class="btn-add">Tambah ke Keranjang</button>
+                <form action="keranjang.php" method="POST" style="width: 100%;">
+                    <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                    <input type="hidden" name="qty" value="1">
+                    <button type="submit" class="btn-add" style="width: 100%;">
+                        <i class="fas fa-shopping-cart"></i> + Keranjang
+                    </button>
+                </form>
             </div>
         </div>
         <?php endforeach; ?>

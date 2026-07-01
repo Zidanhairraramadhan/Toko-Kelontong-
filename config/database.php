@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$db_name = 'toko kelontong';
+$db_name = 'toko_kelontong';
 $username = 'root'; // Default XAMPP username
 $password = '';     // Default XAMPP password (usually empty)
 

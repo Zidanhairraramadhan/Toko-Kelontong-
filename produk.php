@@ -45,10 +45,10 @@ try {
         <div class="product-card">
             <div class="product-image" style="background-image: url('assets/images/<?php echo $product['image']; ?>'), url('https://via.placeholder.com/300x200?text=Produk');"></div>
             <div class="product-info">
-                <span style="font-size: 0.8rem; background: #eee; padding: 2px 8px; border-radius: 10px; color: #666;">
+                <span class="category-badge">
                     <?php echo htmlspecialchars($product['category']); ?>
                 </span>
-                <h3 class="product-title" style="margin-top: 10px;"><?php echo htmlspecialchars($product['name']); ?></h3>
+                <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
 
                 <p class="product-price">Rp <?php echo number_format($product['price'], 0, ',', '.'); ?></p>
 

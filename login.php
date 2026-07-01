@@ -37,7 +37,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($user['role'] == 'admin') {
                 header("Location: admin/index.php");
             } else {
-                header("Location: produk.php");
+                $redirect = isset($_GET['redirect']) ? $_GET['redirect'] : '';
+                if (empty($redirect) && !empty($_SESSION['cart'])) {
+                    $redirect = 'keranjang.php';
+                }
+                
+                // Allow safe local redirects
+                if (basename($redirect) == 'keranjang.php' || basename($redirect) == 'pembayaran.php') {
+                    header("Location: " . $redirect);
+                } else {
+                    header("Location: produk.php");
+                }
             }
             exit;
         } else {
